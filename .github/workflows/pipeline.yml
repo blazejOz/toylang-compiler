@@ -1,0 +1,29 @@
+name: CI Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install LLVM and CMake
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake llvm-dev libclang-dev clang
+
+      - name: Configure CMake
+        run: cmake -B build
+
+      - name: Build Project
+        run: cmake --build build
+
+      - name: Test Executable
+        run: ./build/compiler
