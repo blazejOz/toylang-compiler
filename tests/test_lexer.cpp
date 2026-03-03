@@ -11,3 +11,13 @@ TEST_CASE("Lexer skips white spaces", "[lexer]")
     REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
     REQUIRE(tokens[1].type == TokenType::EOF_TOKEN);
 }
+
+TEST_CASE("Lexer skips white spaces", "[lexer]")
+{
+    Lexer lexer{"   "};
+
+    std::vector tokens = lexer.tokenize();
+
+    REQUIRE(tokens.size() == 1);
+    REQUIRE(tokens[0].type == TokenType::EOF_TOKEN);
+}
