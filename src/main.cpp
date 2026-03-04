@@ -1,6 +1,7 @@
 #include "Lexer.hpp"
 #include "Parser.hpp"
 #include "IR_Generator.hpp"
+#include "JITengine.hpp"
 
 int main() {
     // 1. Lexing
@@ -15,6 +16,12 @@ int main() {
     IRGenerator codegen;
     codegen.generate(ast);
     codegen.print();
+
+    
+
+    JITengine engine;
+    engine.runModule(codegen.moveModule());
+    
 
     return 0;
 }

@@ -29,5 +29,7 @@ public:
      * @brief LLVM modlue getter
      * @return llvm::Module
     */
-    llvm::Module* getModule() { return module.get(); }
+    std::unique_ptr<llvm::Module> moveModule() {
+        return std::move(module);
+    }
 };

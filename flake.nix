@@ -14,11 +14,15 @@
       devShells.${system}.default = pkgs.mkShell {
         nativeBuildInputs = with pkgs; [
           cmake
+          pkg-config
           llvmPackages.llvm  
           llvmPackages.libllvm
           clang
           clang-tools           
-          gdb                   
+          gdb
+          libffi 
+          libxml2 
+          zlib                 
         ];
 
         shellHook = ''
