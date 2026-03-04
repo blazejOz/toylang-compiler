@@ -16,6 +16,7 @@
           cmake
           llvmPackages.llvm  
           llvmPackages.libllvm
+          clang
           clang-tools           
           gdb                   
         ];

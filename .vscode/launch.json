@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/unit_tests",
+            "args": [], 
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Skip Standard Library",
+                    "text": "-interpreter-exec console \"skip -rfu std::.*\"",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Skip Catch2 Internals",
+                    "text": "-interpreter-exec console \"skip -rfu Catch::.*\"",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

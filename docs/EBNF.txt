@@ -1,0 +1,6 @@
+
+Statment        ::= PrintStmt
+
+PrintStmt       ::= "print" "(" Primary ")" ";"
+
+Primary         ::= INTEGER

@@ -1,16 +1,20 @@
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/IRBuilder.h>
-#include <iostream>
+#include "Lexer.hpp"
+#include "Parser.hpp"
+#include "IR_Generator.hpp"
 
 int main() {
+    // 1. Lexing
+    Lexer lexer("print(42);");
+    auto tokens = lexer.tokenize();
 
-    llvm::LLVMContext context;
+    // 2. Parsing
+    Parser parser(tokens);
+    auto ast = parser.parse();
 
-    llvm::Module* module = new llvm::Module("AxLanguage", context);
+    // 3. IR Generation
+    IRGenerator codegen;
+    codegen.generate(ast);
+    codegen.print();
 
-    module->print(llvm::errs(), nullptr);
-
-    delete module;
     return 0;
 }
