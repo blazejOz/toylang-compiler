@@ -27,3 +27,6 @@ jobs:
 
       - name: Test Executable
         run: ./build/compiler
+
+      - name: Run Tests
+        run: ./build/unit_tests
