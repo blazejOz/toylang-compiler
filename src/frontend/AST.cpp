@@ -2,19 +2,22 @@
 
 
 // Constructors
-IntegerExprAST::IntegerExprAST(int val) : val_{val} {}
-
 PrintStmtAST::PrintStmtAST(std::unique_ptr<AST> expression) 
     : expression_(std::move(expression)) {}
 
+VarDeclarationStmtAST::VarDeclarationStmtAST(TokenType vt, const std::string& ident, std::unique_ptr<AST> expr)
+    : varType_{vt}, identifier_{ident}, expression_{std::move(expr)} {}
 
-// Integer Codegen
-llvm::Value* IntegerExprAST::codegen(llvm::LLVMContext& context, 
-                                     llvm::IRBuilder<>& builder, 
-                                     llvm::Module& module) 
-{
-    return llvm::ConstantInt::get(context, llvm::APInt(32, val_, true));
-}
+VariableExprAST::VariableExprAST(const std::string& name) : name_{name} {}
+
+BiniaryExprAST::BiniaryExprAST(TokenType op, std::unique_ptr<AST> l, std::unique_ptr<AST> r)
+    : op_{op}, lhs_{std::move(l)}, rhs_{std::move(r)} {}
+
+IntegerExprAST::IntegerExprAST(int val) : val_{val} {}
+
+
+
+//Codegen
 
 llvm::Value* PrintStmtAST::codegen( llvm::LLVMContext& context,
                                     llvm::IRBuilder<>& builder, 
@@ -44,4 +47,32 @@ llvm::Value* PrintStmtAST::codegen( llvm::LLVMContext& context,
 
     std::vector<llvm::Value*> printArgs = { formatStr, val };
     return builder.CreateCall(printfFunc, printArgs, "printf_call");
+}
+
+llvm::Value* VarDeclarationStmtAST::codegen(llvm::LLVMContext& context, 
+                                            llvm::IRBuilder<>& builder, 
+                                            llvm::Module& module) 
+{
+    return llvm::ConstantInt::get(context, llvm::APInt(32, 0, true)); //TODO
+}
+
+llvm::Value* VariableExprAST::codegen(llvm::LLVMContext& context, 
+                                      llvm::IRBuilder<>& builder, 
+                                      llvm::Module& module) 
+{
+    return llvm::ConstantInt::get(context, llvm::APInt(32, 0, true)); //TODO
+}
+
+llvm::Value* BiniaryExprAST::codegen(llvm::LLVMContext& context, 
+                                     llvm::IRBuilder<>& builder, 
+                                     llvm::Module& module) 
+{
+    return llvm::ConstantInt::get(context, llvm::APInt(32, 0, true)); //TODO
+}
+
+llvm::Value* IntegerExprAST::codegen(llvm::LLVMContext& context, 
+                                     llvm::IRBuilder<>& builder, 
+                                     llvm::Module& module) 
+{
+    return llvm::ConstantInt::get(context, llvm::APInt(32, val_, true));
 }

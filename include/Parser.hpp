@@ -17,11 +17,13 @@ private:
 
     /**
      * @brief Consume and return the current token
+     * @return Token
      */
     Token& advance();
 
     /**
      * @brief Check if current token matches expected type; if so, advance.
+     * @return Token from advance();
      */
     Token& expect(TokenType type);
 

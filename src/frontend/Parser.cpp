@@ -43,6 +43,7 @@ std::vector<std::unique_ptr<AST>> Parser::parse()
 std::unique_ptr<AST> Parser::parseStatement()
 {
     if(match(TokenType::PRINT_KEYWORD)) return parsePrintStatement();
+    if(match(TokenType::INT_KEYWORD)) return parseVarDeclarationStatement();
 
     throw std::runtime_error("No Statment found");
     return nullptr;
@@ -52,10 +53,42 @@ std::unique_ptr<AST> Parser::parsePrintStatement()
 {
     expect(TokenType::PRINT_KEYWORD);
     expect(TokenType::L_PAREN);
-    std::unique_ptr<AST> expr = parsePrimary();
+    std::unique_ptr<AST> expr = parseExpr();
     expect(TokenType::R_PAREN);
     expect(TokenType::SEMICOLON);
     return std::make_unique<PrintStmtAST>(std::move(expr));
+}
+
+std::unique_ptr<AST> Parser::parseVarDeclarationStatement()
+{
+    Token tk =  expect(TokenType::INT_KEYWORD);
+    std::string ident = expect(TokenType::IDENTIFIER).value;
+    expect(TokenType::ASSIGN);
+    std::unique_ptr<AST> expr = parseExpr();
+    expect(TokenType::SEMICOLON);
+    return std::make_unique<VarDeclarationStmtAST>(tk.type, ident, std::move(expr));
+}
+
+std::unique_ptr<AST> Parser::parseExpr()
+{
+    std::unique_ptr<AST> left = parseTerm();
+    while(match(TokenType::ADD) || match(TokenType::SUB)){
+        auto op = advance().type; // current operator ADD or SUB
+        auto right = parseTerm();
+        left = std::make_unique<BiniaryExprAST>(op, std::move(left), std::move(right));
+    }
+    return left;
+}
+
+std::unique_ptr<AST> Parser::parseTerm()
+{
+    std::unique_ptr<AST> left = parsePrimary();
+    while(match(TokenType::MUL) || match(TokenType::DIV)){
+        auto op = advance().type; // current operator MUL or DIV
+        auto right = parsePrimary();
+        left = std::make_unique<BiniaryExprAST>(op, std::move(left), std::move(right));
+    }
+    return left;
 }
 
 std::unique_ptr<AST> Parser::parsePrimary()
@@ -64,6 +97,16 @@ std::unique_ptr<AST> Parser::parsePrimary()
         Token t = expect(TokenType::NUMBER);
         int value = std::stoi(t.value);
         return std::make_unique<IntegerExprAST>(value);
+    }
+    if(match(TokenType::IDENTIFIER)){
+        Token t = expect(TokenType::IDENTIFIER);
+        return std::make_unique<VariableExprAST>(t.value);
+    }
+    if(match(TokenType::L_PAREN)){
+        expect(TokenType::L_PAREN);
+        auto expr = parseExpr();
+        expect(TokenType::R_PAREN);
+        return std::move(expr);
     }
 
     throw std::runtime_error("No Primary found");
