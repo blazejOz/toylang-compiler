@@ -21,6 +21,64 @@ public:
 };
 
 /**
+ * @brief Represents a 'print' statement
+ */
+class PrintStmtAST: public AST
+{
+private:
+    std::unique_ptr<AST> expression_;
+public:
+    PrintStmtAST(std::unique_ptr<AST> expression);
+    llvm::Value* codegen(llvm::LLVMContext& context, 
+                         llvm::IRBuilder<>& builder, 
+                         llvm::Module& module) override;
+};
+
+/**
+ * @brief Represesnts variable declaration eg. int x = 2 + 2 * 10;
+ */
+class VarDeclarationStmtAST: public AST
+{
+private:
+    TokenType varType_; // int
+    std::string identifier_;
+    std::unique_ptr<AST> expression_;
+
+public:
+    VarDeclarationStmtAST(std::string t, std::unique_ptr<AST> ident, std::unique_ptr<AST> expr);
+    llvm::Value* codegen(llvm::LLVMContext& context, 
+                         llvm::IRBuilder<>& builder, 
+                         llvm::Module& module) override;
+};
+
+class VariableExprAST : public AST
+{
+private:
+    std::string name_;
+public:
+    VariableExprAST(const std::string& name);
+    llvm::Value* codegen(llvm::LLVMContext& context, 
+                         llvm::IRBuilder<>& builder, 
+                         llvm::Module& module) override;
+};
+
+/**
+ * @brief Binary expression ( + * + /)
+ */
+class BiniaryExprAST : public AST
+{
+private:
+    TokenType op_;
+    std::unique_ptr<AST> LHS; //LEFT HAND SIDE
+    std::unique_ptr<AST> RHS; //RIGHT HAND SIDE
+public:
+    BiniaryExprAST(TokenType op, std::unique_ptr<AST> l, std::unique_ptr<AST> r);
+    llvm::Value* codegen(llvm::LLVMContext& context, 
+                         llvm::IRBuilder<>& builder, 
+                         llvm::Module& module) override;
+};
+
+/**
  * @brief Represents a literal integer like '1' or '42'
  */
 class IntegerExprAST : public AST 
@@ -34,17 +92,5 @@ public:
                          llvm::Module& module) override;
 };
 
-/**
- * @brief Represents a 'print' statement
- */
-class PrintStmtAST: public AST
-{
-private:
-    std::unique_ptr<AST> expression_;
-public:
-    PrintStmtAST(std::unique_ptr<AST> expression);
-    llvm::Value* codegen(llvm::LLVMContext& context, 
-                         llvm::IRBuilder<>& builder, 
-                         llvm::Module& module) override;
-};
+
 
