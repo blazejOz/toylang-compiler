@@ -58,16 +58,16 @@ struct Token
             case TokenType::STRING:        return "string literal";
             
             // Arithmetic
-            case TokenType::ADD:           return "operator '+'";
-            case TokenType::SUB:           return "operator '-'";
-            case TokenType::MUL:           return "operator '*'";
-            case TokenType::DIV:           return "operator '/'";
+            case TokenType::ADD:           return "+";
+            case TokenType::SUB:           return "-";
+            case TokenType::MUL:           return "*";
+            case TokenType::DIV:           return "/";
             
             // Symbols
-            case TokenType::L_PAREN:       return "'('";
-            case TokenType::R_PAREN:       return "')'";
-            case TokenType::SEMICOLON:     return "';'";
-            case TokenType::ASSIGN:        return "assignment operator '='";
+            case TokenType::L_PAREN:       return "(";
+            case TokenType::R_PAREN:       return ")";
+            case TokenType::SEMICOLON:     return ";";
+            case TokenType::ASSIGN:        return "=";
             
             // Special
             case TokenType::UNKNOWN:       return "unknown character";

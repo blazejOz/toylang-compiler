@@ -19,6 +19,11 @@ public:
     virtual llvm::Value* codegen(llvm::LLVMContext& context, 
                                  llvm::IRBuilder<>& builder, 
                                  llvm::Module& module) = 0;
+
+    /**
+     * @brief Lisp representation for parser tests
+     */
+    virtual std::string toString() = 0;
 };
 
 /**
@@ -33,6 +38,7 @@ public:
     llvm::Value* codegen(llvm::LLVMContext& context, 
                          llvm::IRBuilder<>& builder, 
                          llvm::Module& module) override;
+    std::string toString() override;
 };
 
 /**
@@ -50,6 +56,7 @@ public:
     llvm::Value* codegen(llvm::LLVMContext& context, 
                          llvm::IRBuilder<>& builder, 
                          llvm::Module& module) override;
+    std::string toString() override;
 };
 
 class VariableExprAST : public AST
@@ -61,6 +68,7 @@ public:
     llvm::Value* codegen(llvm::LLVMContext& context, 
                          llvm::IRBuilder<>& builder, 
                          llvm::Module& module) override;
+    std::string toString() override;
 };
 
 /**
@@ -77,6 +85,7 @@ public:
     llvm::Value* codegen(llvm::LLVMContext& context, 
                          llvm::IRBuilder<>& builder, 
                          llvm::Module& module) override;
+    std::string toString() override;
 };
 
 /**
@@ -91,6 +100,7 @@ public:
     llvm::Value* codegen(llvm::LLVMContext& context, 
                          llvm::IRBuilder<>& builder, 
                          llvm::Module& module) override;
+    std::string toString() override;
 };
 
 
