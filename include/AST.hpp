@@ -2,12 +2,14 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <map>
 #include <iostream>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
 #include "Token.hpp"
 
+using SymbolTable = std::map<std::string, llvm::AllocaInst*>;
 
 /**
  * @brief Base class for all expression nodes
@@ -18,7 +20,8 @@ public:
     virtual ~AST() = default;
     virtual llvm::Value* codegen(llvm::LLVMContext& context, 
                                  llvm::IRBuilder<>& builder, 
-                                 llvm::Module& module) = 0;
+                                 llvm::Module& module,
+                                 SymbolTable& symbolTable) = 0;
 
     /**
      * @brief Lisp representation for parser tests
@@ -36,8 +39,9 @@ private:
 public:
     PrintStmtAST(std::unique_ptr<AST> expression);
     llvm::Value* codegen(llvm::LLVMContext& context, 
-                         llvm::IRBuilder<>& builder, 
-                         llvm::Module& module) override;
+                            llvm::IRBuilder<>& builder, 
+                            llvm::Module& module,
+                            SymbolTable& symbolTable) override;
     std::string toString() override;
 };
 
@@ -54,8 +58,9 @@ private:
 public:
     VarDeclarationStmtAST(TokenType vt, const std::string&, std::unique_ptr<AST> expr);
     llvm::Value* codegen(llvm::LLVMContext& context, 
-                         llvm::IRBuilder<>& builder, 
-                         llvm::Module& module) override;
+                            llvm::IRBuilder<>& builder, 
+                            llvm::Module& module,
+                            SymbolTable& symbolTable) override;
     std::string toString() override;
 };
 
@@ -66,8 +71,9 @@ private:
 public:
     VariableExprAST(const std::string& name);
     llvm::Value* codegen(llvm::LLVMContext& context, 
-                         llvm::IRBuilder<>& builder, 
-                         llvm::Module& module) override;
+                            llvm::IRBuilder<>& builder, 
+                            llvm::Module& module,
+                            SymbolTable& symbolTable) override;
     std::string toString() override;
 };
 
@@ -83,8 +89,9 @@ private:
 public:
     BinaryExprAST(TokenType op, std::unique_ptr<AST> l, std::unique_ptr<AST> r);
     llvm::Value* codegen(llvm::LLVMContext& context, 
-                         llvm::IRBuilder<>& builder, 
-                         llvm::Module& module) override;
+                            llvm::IRBuilder<>& builder, 
+                            llvm::Module& module,
+                            SymbolTable& symbolTable) override;
     std::string toString() override;
 };
 
@@ -98,8 +105,9 @@ private:
 public:
     IntegerExprAST(int val);
     llvm::Value* codegen(llvm::LLVMContext& context, 
-                         llvm::IRBuilder<>& builder, 
-                         llvm::Module& module) override;
+                            llvm::IRBuilder<>& builder, 
+                            llvm::Module& module,
+                            SymbolTable& symbolTable) override;
     std::string toString() override;
 };
 

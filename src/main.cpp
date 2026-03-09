@@ -5,7 +5,7 @@
 
 int main() {
     // 1. Lexing
-    Lexer lexer("int x = 2 + 2 * 2; print(4 + 2 * 7 + 10);");
+    Lexer lexer("int x = 2 + 2 * 2; print(x); print(4 + 2 * 7 + 10);");
     auto tokens = lexer.tokenize();
 
     // 2. Parsing

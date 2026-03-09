@@ -2,13 +2,17 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <map>
 #include "AST.hpp"
+
+
 
 class IRGenerator {
 private:
     llvm::LLVMContext context;
     llvm::IRBuilder<> builder;
     std::unique_ptr<llvm::Module> module;
+    std::map<std::string, llvm::AllocaInst*> symbolTable_;
 
 public:
     IRGenerator() 
