@@ -11,7 +11,7 @@ void IRGenerator::generate(const std::vector<std::unique_ptr<AST>>& nodes) {
 
     // loop parser nodes
     for (const auto& node : nodes) {
-        node->codegen(context, builder, *module);
+        node->codegen(context, builder, *module, symbolTable_);
     }
 
     // return 0

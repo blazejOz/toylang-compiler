@@ -1,6 +1,14 @@
+Statement      ::= VarDeclrStmt 
+                 | AssignStmt 
+                 | PrintStmt
 
-Statment        ::= PrintStmt
+VarDeclrStmt   ::= "int" IDENTIFIER [ "=" Expr ] ";"
+AssignStmt     ::= IDENTIFIER "=" Expr ";"
+PrintStmt      ::= "print" "(" Expr ")" ";"
 
-PrintStmt       ::= "print" "(" Primary ")" ";"
+Expr           ::= Term { ("+" | "-") Term }
+Term           ::= Primary { ("*" | "/") Primary }
 
-Primary         ::= INTEGER
+Primary        ::= INTEGER 
+                 | IDENTIFIER 
+                 | "(" Expr ")"

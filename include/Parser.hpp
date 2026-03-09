@@ -17,28 +17,49 @@ private:
 
     /**
      * @brief Consume and return the current token
+     * @return Token
      */
     Token& advance();
 
     /**
      * @brief Check if current token matches expected type; if so, advance.
+     * @return Token from advance();
      */
     Token& expect(TokenType type);
+
+    /**
+     * @brief Parse Statement expressions
+     */
+    std::unique_ptr<AST> parseStatement();
+
+    /**
+     * @brief Parse print statment
+     * Grammar Rule: PrintStmt -> 'print' '(' Expression ')' ';'
+     */
+    std::unique_ptr<AST> parsePrintStatement();
+
+    /**
+     * @brief Pasrse Variable Declaration (int)
+     * Grammar Rule: VarDeclrStmt -> 'int' IDENTIFIER '=' Expression ';'
+     */
+    std::unique_ptr<AST> parseVarDeclarationStatement();
+
+    /**
+     * @brief Parse expression ( ADD /SUB )
+     */
+    std::unique_ptr<AST> parseExpr();
+
+    /**
+     * @brief Parse term ( MUL / DIV )
+     */
+    std::unique_ptr<AST> parseTerm();
+
 
     /**
      * @brief Grammar Rule: Primary -> Integer
      */
     std::unique_ptr<AST> parsePrimary();
 
-    /**
-     * @brief Grammar Rule: PrintStmt -> 'print' '(' Expression ')' ';'
-     */
-    std::unique_ptr<AST> parsePrintStatement();
-
-    /**
-     * @brief Parse Statement expressions
-     */
-    std::unique_ptr<AST> parseStatement();
 public:
     Parser(std::vector<Token> tokens);
 

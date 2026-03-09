@@ -3,10 +3,10 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/nix/store/g8r229mkcdkkgfg5h90dp51a9rakvhfg-llvm-21.1.8-dev/include"
             ],
-            "defines": [],
-            "intelliSenseMode": "linux-gcc-x64"
+            "intelliSenseMode": "linux-clang-x64"
         }
     ],
     "version": 4

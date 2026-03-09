@@ -3,6 +3,8 @@
 Lexer::Lexer(std::string source_code): input_{source_code}
 {
     keywords_["print"] = TokenType::PRINT_KEYWORD;
+    keywords_["int"] = TokenType::INT_KEYWORD;
+
 }
 
 std::vector<Token> Lexer::tokenize()
@@ -64,6 +66,13 @@ Token Lexer::getNextToken()
     if (c == '(') return {TokenType::L_PAREN, "("};
     if (c == ')') return {TokenType::R_PAREN, ")"};
     if (c == ';') return {TokenType::SEMICOLON, ";"};
+    if (c == '=') return {TokenType::ASSIGN, "="};
+
+    //ARITHMETIC
+    if (c == '+') return {TokenType::ADD, "+"};
+    if (c == '-') return {TokenType::SUB, "-"};
+    if (c == '*') return {TokenType::MUL, "*"};
+    if (c == '/') return {TokenType::DIV, "/"};
 
     
     if(c == '\0') return {TokenType::EOF_TOKEN, ""};

@@ -3,21 +3,19 @@
 
 TEST_CASE("Lexer skips white spaces and handles identifiers", "[lexer]")
 {
-    Lexer lexer{"     a   print"};
-
-    std::vector tokens = lexer.tokenize();
+    Lexer lexer{"    ala   print"};
+    auto tokens = lexer.tokenize();
 
     REQUIRE(tokens.size() == 3);
-    REQUIRE(tokens[0].type == TokenType::IDENTIFIER);
-    REQUIRE(tokens[1].type == TokenType::PRINT_KEYWORD);
-    REQUIRE(tokens[2].type == TokenType::EOF_TOKEN);
+    CHECK(tokens[0].type == TokenType::IDENTIFIER);
+    CHECK(tokens[1].type == TokenType::PRINT_KEYWORD);
+    CHECK(tokens[2].type == TokenType::EOF_TOKEN);
 }
 
 TEST_CASE("Lexer skips all white spaces", "[lexer]")
 {
-    Lexer lexer{"   "};
-
-    std::vector tokens = lexer.tokenize();
+    Lexer lexer{" \n  \t   "};
+    auto tokens = lexer.tokenize();
 
     REQUIRE(tokens.size() == 1);
     REQUIRE(tokens[0].type == TokenType::EOF_TOKEN);
@@ -25,14 +23,39 @@ TEST_CASE("Lexer skips all white spaces", "[lexer]")
 
 TEST_CASE("Lexer handles single chars", "[lexer]")
 {
-    Lexer lexer{" (  )  ;  &"};
-
-    std::vector tokens = lexer.tokenize();
+    Lexer lexer{" (  )  ;  & "};
+    auto tokens = lexer.tokenize();
 
     REQUIRE(tokens.size() == 5);
-    REQUIRE(tokens[0].type == TokenType::L_PAREN);
-    REQUIRE(tokens[1].type == TokenType::R_PAREN);
-    REQUIRE(tokens[2].type == TokenType::SEMICOLON);
-    REQUIRE(tokens[3].type == TokenType::UNKNOWN);
-    REQUIRE(tokens[4].type == TokenType::EOF_TOKEN);
+    CHECK(tokens[0].type == TokenType::L_PAREN);
+    CHECK(tokens[1].type == TokenType::R_PAREN);
+    CHECK(tokens[2].type == TokenType::SEMICOLON);
+    CHECK(tokens[3].type == TokenType::UNKNOWN);
+    CHECK(tokens[4].type == TokenType::EOF_TOKEN);
+}
+
+TEST_CASE("Lexer handles arithmetic without spaces", "[lexer]")
+{
+    Lexer lexer{"1+2*3;"};
+    auto tokens = lexer.tokenize();
+
+    REQUIRE(tokens.size() == 7); // 1, +, 2, *, 3, ;, EOF
+    CHECK(tokens[0].type == TokenType::NUMBER);
+    CHECK(tokens[1].type == TokenType::ADD);
+    CHECK(tokens[2].type == TokenType::NUMBER);
+    CHECK(tokens[3].type == TokenType::MUL);
+    CHECK(tokens[4].type == TokenType::NUMBER);
+    CHECK(tokens[5].type == TokenType::SEMICOLON);
+    CHECK(tokens[6].type == TokenType::EOF_TOKEN);
+}
+
+TEST_CASE("Lexer handles greedy keywords", "[lexer]")
+{
+    // 'print' is a keyword, but 'printed' is an identifier
+    Lexer lexer{"printed"};
+    auto tokens = lexer.tokenize();
+
+    REQUIRE(tokens.size() == 2);
+    CHECK(tokens[0].type == TokenType::IDENTIFIER);
+    CHECK(tokens[0].value == "printed");
 }

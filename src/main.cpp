@@ -5,16 +5,20 @@
 
 int main() {
     // 1. Lexing
-    Lexer lexer("print(42);");
+    Lexer lexer("int x = 2 + 2 * 2; print(x); print(4 + 2 * 7 + 10);");
     auto tokens = lexer.tokenize();
 
     // 2. Parsing
     Parser parser(tokens);
-    auto ast = parser.parse();
+    auto asts = parser.parse();
+
+    for (const auto& ast : asts) {
+        std::cout << "Parsed Statement: " << ast->toString() << std::endl;
+    }
 
     // 3. IR Generation
     IRGenerator codegen;
-    codegen.generate(ast);
+    codegen.generate(asts);
     codegen.print();
 
     
