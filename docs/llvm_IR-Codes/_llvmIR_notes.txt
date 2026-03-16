@@ -1,0 +1,84 @@
+compile example.c progem to llvm IR 
+
+clang -S -emit-llvm example.c -o example.ll  - optimized
+
+clang -S -emit-llvm -fno-discard-value-names example.c -o example.ll - keep names(less optimized)
+
+
+
+
+
+
+LLVM IR REFERENCE CHEAT SHEET
+
+-------------------------------------------------------------------------------
+MEMORY OPERATIONS (The "Stack & Pointers" logic)
+-------------------------------------------------------------------------------
+alloca <type>           ; Allocates memory on the stack. Returns a POINTER.
+                        ; Ex: %ptr = alloca i32
+                        
+load <type>, ptr <reg>  ; Reads value from memory into a register.
+                        ; Ex: %val = load i32, ptr %ptr
+
+store <type> <v>, ptr <p> ; Writes value <v> into memory address <p>.
+                        ; Ex: store i32 42, ptr %ptr
+
+getelementptr <t>, ptr <p>, <idx> ; (GEP) Calculates offset in array/struct.
+                        ; Does NOT access memory. Just pointer math.
+
+-------------------------------------------------------------------------------
+ARITHMETIC (Integer math - must be same bit-width)
+-------------------------------------------------------------------------------
+add  i32 %a, %b         ; Addition
+sub  i32 %a, %b         ; Subtraction
+mul  i32 %a, %b         ; Multiplication
+sdiv i32 %a, %b         ; Signed Division (use 'udiv' for unsigned)
+srem i32 %a, %b         ; Signed Remainder (modulo)
+
+-------------------------------------------------------------------------------
+COMPARISON (icmp: Integer Comparison)
+-------------------------------------------------------------------------------
+Syntax: icmp <condition> <type> <op1>, <op2>
+Result: i1 (boolean: 1 for true, 0 for false)
+
+Condition Codes:
+  eq  : equal               ne  : not equal
+  sgt : signed greater than      ugt : unsigned greater than
+  sge : signed greater or equal  uge : unsigned greater or equal
+  slt : signed less than         ult : unsigned less than
+  sle : signed less or equal     ule : unsigned less or equal
+
+-------------------------------------------------------------------------------
+CONTROL FLOW (Terminators)
+-------------------------------------------------------------------------------
+br label <dest>                   ; Unconditional jump
+br i1 %cond, label %T, label %F   ; Conditional branch
+
+ret <type> <value>                ; Return value from function
+ret void                          ; Return nothing
+
+call <type> @name(<args>)         ; Call function
+                                  ; Ex: %res = call i32 @add(i32 1, i32 2)
+
+phi <type> [ %v1, %L1 ], [ %v2, %L2 ] ; Picks value based on previous block.
+                                      ; Found in optimized code (SSA).
+
+-------------------------------------------------------------------------------
+CONVERSIONS (Casting)
+-------------------------------------------------------------------------------
+trunc <t1> %v to <t2>   ; Truncate (i64 -> i32)
+zext  <t1> %v to <t2>   ; Zero-extend (unsigned i32 -> i64)
+sext  <t1> %v to <t2>   ; Sign-extend (signed i32 -> i64)
+bitcast <t1> %v to <t2> ; Raw bit-for-bit reinterpretation
+
+-------------------------------------------------------------------------------
+SYMBOLS & TYPES
+-------------------------------------------------------------------------------
+@name   ; Global symbol (Functions, Strings, Global Vars)
+%name   ; Local symbol (Registers, Block Labels, Local Args)
+
+i1      ; 1-bit integer (boolean)
+i8      ; 8-bit integer (char)
+i32     ; 32-bit integer (int)
+ptr     ; Pointer (Opaque pointer in modern LLVM)
+void    ; No type
