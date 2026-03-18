@@ -9,7 +9,7 @@
 #include <llvm/IR/Instructions.h>
 #include "Token.hpp"
 
-// Type Aliases for cleaner signatures
+//Type Aliases
 using SymbolTable = std::map<std::string, llvm::AllocaInst*>;
 using Context     = llvm::LLVMContext&;
 using IRBuild     = llvm::IRBuilder<>&;
@@ -17,24 +17,26 @@ using Mod         = llvm::Module&;
 
 /**
  * @brief Base class for all Abstract Syntax Tree nodes.
+ * All specialized nodes (Expressions, Statements, Declarations) inherit from this.
  */
 class AST {
 public:
     virtual ~AST() = default;
 
     /**
-     * @brief Generates LLVM IR for this node.
+     * @brief Generates LLVM IR for this specific node.
+     * @return llvm::Value* representing the result of the instruction or nullptr.
      */
     virtual llvm::Value* codegen(Context context, IRBuild builder, Mod module, 
                                  SymbolTable& symbolTable) = 0;
 
     /**
-     * @brief Returns a string representation for debugging/testing.
+     * @brief Returns a string representation of the node (Lisp-style) for debugging.
      */
     virtual std::string toString() = 0;
 };
 
-// --- Container Nodes ---
+//Container Nodes
 
 /**
  * @brief Represents a function declaration.
@@ -66,7 +68,7 @@ public:
 };
 
 
-// --- Statement Nodes ---
+//Statement Nodes
 
 class PrintStmtAST : public AST {
 private:
@@ -88,6 +90,18 @@ public:
     std::string toString() override;
 };
 
+class AssignmentStmtAST : public AST {
+private:
+    std::string identifier_;
+    std::unique_ptr<AST> expression_;
+public:
+    AssignmentStmtAST(std::string id, std::unique_ptr<AST> expr)
+        : identifier_(id), expression_(std::move(expr)) {}
+        
+    llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
+    std::string toString() override;
+};
+
 class IfStmtAST : public AST {
 private:
     std::unique_ptr<AST> condition_;
@@ -95,6 +109,21 @@ private:
     std::unique_ptr<BlockAST> elseBlock_; // Can be nullptr
 public:
     IfStmtAST(std::unique_ptr<AST> cond, std::unique_ptr<BlockAST> thenB, std::unique_ptr<BlockAST> elseB);
+    llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
+    std::string toString() override;
+};
+
+/**
+ * @brief Represents a while loop: while (condition) { body }
+ */
+class WhileStmtAST : public AST {
+private:
+    std::unique_ptr<AST> condition_;
+    std::unique_ptr<BlockAST> body_;
+public:
+    WhileStmtAST(std::unique_ptr<AST> cond, std::unique_ptr<BlockAST> body)
+        : condition_(std::move(cond)), body_(std::move(body)) {}
+
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
     std::string toString() override;
 };
@@ -108,7 +137,7 @@ public:
     std::string toString() override;
 };
 
-// --- Expression Nodes ---
+//Expression Nodes
 
 class BinaryExprAST : public AST {
 private:
@@ -134,6 +163,19 @@ private:
     int val_;
 public:
     IntegerExprAST(int val);
+    llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
+    std::string toString() override;
+};
+
+/**
+ * @brief Represents a function call: identifier(args)
+ */
+class CallExprAST : public AST {
+private:
+    std::string callee_;
+    std::vector<std::unique_ptr<AST>> args_;
+public:
+    CallExprAST(std::string callee, std::vector<std::unique_ptr<AST>> args);
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
     std::string toString() override;
 };
