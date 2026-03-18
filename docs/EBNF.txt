@@ -1,14 +1,35 @@
-Statement      ::= VarDeclrStmt 
-                 | AssignStmt 
-                 | PrintStmt
+program         = { function_decl } ;
 
-VarDeclrStmt   ::= "int" IDENTIFIER [ "=" Expr ] ";"
-AssignStmt     ::= IDENTIFIER "=" Expr ";"
-PrintStmt      ::= "print" "(" Expr ")" ";"
+function_decl   = "fn" identifier "(" [ params ] ")" ":" type block ;
+params          = param { "," param } ;
+param           = type identifier ;
+type            = "int" | "void" ;
 
-Expr           ::= Term { ("+" | "-") Term }
-Term           ::= Primary { ("*" | "/") Primary }
+block           = "{" { statement } "}" ;
 
-Primary        ::= INTEGER 
-                 | IDENTIFIER 
-                 | "(" Expr ")"
+statement       = var_decl 
+                | assign_stmt 
+                | print_stmt 
+                | if_stmt 
+                | while_stmt 
+                | return_stmt 
+                | expression ";" ;
+
+var_decl        = "int" identifier [ "=" expression ] ";" ;
+assign_stmt     = identifier "=" expression ";" ;
+print_stmt      = "print" "(" expression ")" ";" ;
+if_stmt         = "if" "(" expression ")" block [ "else" block ] ;
+while_stmt      = "while" "(" expression ")" block ;
+return_stmt     = "return" [ expression ] ";" ;
+
+expression      = comparison ;
+comparison      = additive { ( "==" | "!=" | "<" | ">" ) additive } ;
+additive        = multiplicative { ( "+" | "-" ) multiplicative } ;
+multiplicative  = primary { ( "*" | "/" ) primary } ;
+primary         = integer 
+                | function_call 
+                | identifier 
+                | "(" expression ")" ;
+
+function_call   = identifier "(" [ args ] ")" ;
+args            = expression { "," expression } ;

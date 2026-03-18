@@ -3,8 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
-                "/nix/store/g8r229mkcdkkgfg5h90dp51a9rakvhfg-llvm-21.1.8-dev/include"
+                "${workspaceFolder}/**"
             ],
             "intelliSenseMode": "linux-clang-x64"
         }
