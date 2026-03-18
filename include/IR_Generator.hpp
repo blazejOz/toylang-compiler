@@ -19,20 +19,14 @@ public:
         : builder(context), 
           module(std::make_unique<llvm::Module>("MyCompiler", context)) {}
 
-    /**
-     * @brief generete IR from AST trees
-     */
+    /** @brief generete IR from AST trees */
     void generate(const std::vector<std::unique_ptr<AST>>& asts);
     
-    /**
-     * @brief Print IR code
-     */
+    /** @brief Print IR code */
     void print() const { module->print(llvm::outs(), nullptr); }
     
-    /**
-     * @brief LLVM modlue getter
-     * @return llvm::Module
-    */
+    /** @brief LLVM modlue getter
+     *  @return llvm::Module */
     std::unique_ptr<llvm::Module> moveModule() {
         return std::move(module);
     }

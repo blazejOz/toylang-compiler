@@ -2,9 +2,7 @@
 
 #include <string>
 
-/**
- * @brief Categories of tokens supported by the compiler.
- */
+/** @brief Categories of tokens supported by the compiler. */
 enum class TokenType
 {
     // Keywords
@@ -50,17 +48,13 @@ enum class TokenType
     EOF_TOKEN
 };
 
-/**
- * @brief Represents a single unit of source code.
- */
+/** @brief Represents a single unit of source code. */
 struct Token
 {
     TokenType type;
     std::string value;
 
-    /**
-     * @brief Converts a TokenType to a human-readable string for error reporting.
-     */
+    /** @brief Converts a TokenType to a human-readable string for error reporting. */
     static std::string typeToString(TokenType type) 
     {
         switch(type) {
