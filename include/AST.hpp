@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
@@ -41,9 +42,10 @@ private:
     std::unique_ptr<BlockAST> body_;
 public:
     FunctionAST(std::string name, std::vector<std::pair<TokenType, std::string>> args, 
-                TokenType retType, std::unique_ptr<BlockAST> body);
+                TokenType retType, std::unique_ptr<BlockAST> body)
+        : name_(std::move(name)), args_(std::move(args)), returnType_(retType), body_(std::move(body)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
+    std::string toString() override { return "(function " + name_ + body_->toString() + ")";  }
 };
 
 
@@ -52,23 +54,15 @@ class BlockAST : public AST {
 private:
     std::vector<std::unique_ptr<AST>> statements_;
 public:
-    BlockAST(std::vector<std::unique_ptr<AST>> statements);
+    BlockAST(std::vector<std::unique_ptr<AST>> statements)
+        : statements_(std::move(statements)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
+    std::string toString() override { return "{ " + statements_[0]->toString() + "}";  }
 };
 
 
 //Statement Nodes
 
-/** @brief Represents a statement that prints an expression. */
-class PrintStmtAST : public AST {
-private:
-    std::unique_ptr<AST> expression_;
-public:
-    PrintStmtAST(std::unique_ptr<AST> expression);
-    llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
-};
 
 /** @brief Represents a variable declaration (e.g., int x = 5). */
 class VarDeclarationStmtAST : public AST {
@@ -77,9 +71,10 @@ private:
     std::string identifier_;
     std::unique_ptr<AST> expression_;
 public:
-    VarDeclarationStmtAST(TokenType vt, std::string id, std::unique_ptr<AST> expr);
+    VarDeclarationStmtAST(TokenType vt, std::string id, std::unique_ptr<AST> expr)
+        : varType_(vt), identifier_(std::move(id)), expression_(std::move(expr)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
+    std::string toString() override { return "(decl " + identifier_ + " " + expression_->toString() + ")"; }
 };
 
 /** @brief Represents an assignment to an existing variable (e.g., x = 10). */
@@ -92,7 +87,18 @@ public:
         : identifier_(id), expression_(std::move(expr)) {}
         
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
+    std::string toString() override { return "(assign " + identifier_ + " " + expression_->toString() + ")"; }
+};
+
+/** @brief Represents a statement that prints an expression. */
+class PrintStmtAST : public AST {
+private:
+    std::unique_ptr<AST> expression_;
+public:
+    PrintStmtAST(std::unique_ptr<AST> expression)
+        : expression_(std::move(expression)) {}
+    llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
+    std::string toString() override {     return "(print " + expression_->toString() + ")";  }
 };
 
 /** @brief Represents an if-else conditional branch. */
@@ -104,7 +110,7 @@ private:
 public:
     IfStmtAST(std::unique_ptr<AST> cond, std::unique_ptr<BlockAST> thenB, std::unique_ptr<BlockAST> elseB);
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
+    std::string toString() override { return "(if " + condition_->toString() + ")"; }
 };
 
 /** @brief Represents a while loop: while (condition) { body } */
@@ -115,9 +121,8 @@ private:
 public:
     WhileStmtAST(std::unique_ptr<AST> cond, std::unique_ptr<BlockAST> body)
         : condition_(std::move(cond)), body_(std::move(body)) {}
-
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
+    std::string toString() override { return "(while " + condition_->toString() + ")"; }
 };
 
 /** @brief Represents a return statement. */
@@ -125,9 +130,10 @@ class ReturnStmtAST : public AST {
 private:
     std::unique_ptr<AST> expression_;
 public:
-    ReturnStmtAST(std::unique_ptr<AST> expression);
+    ReturnStmtAST(std::unique_ptr<AST> expression)
+        : expression_(std::move(expression)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
+    std::string toString() override { return "(return " + expression_->toString() + ")";}
 };
 
 //Expression Nodes
@@ -138,9 +144,10 @@ private:
     TokenType op_;
     std::unique_ptr<AST> lhs_, rhs_;
 public:
-    BinaryExprAST(TokenType op, std::unique_ptr<AST> l, std::unique_ptr<AST> r);
+    BinaryExprAST(TokenType op, std::unique_ptr<AST> l, std::unique_ptr<AST> r)
+        : op_(op), lhs_(std::move(l)), rhs_(std::move(r)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
+    std::string toString() override { return "(" + Token::typeToString(op_) + " " + lhs_->toString() + " " + rhs_->toString() + ")"; }
 };
 
 /** @brief Represents a variable usage as an expression. */
@@ -148,9 +155,9 @@ class VariableExprAST : public AST {
 private:
     std::string name_;
 public:
-    VariableExprAST(std::string name);
+    VariableExprAST(std::string name): name_(std::move(name)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
+    std::string toString() override { return name_; }
 };
 
 /** @brief Represents a literal integer like '42'. */
@@ -158,9 +165,9 @@ class IntegerExprAST : public AST {
 private:
     int val_;
 public:
-    IntegerExprAST(int val);
+    IntegerExprAST(int val): val_(val) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
+    std::string toString() override { return std::to_string(val_); }
 };
 
 /** @brief Represents a function call: identifier(args) */
@@ -169,7 +176,8 @@ private:
     std::string callee_;
     std::vector<std::unique_ptr<AST>> args_;
 public:
-    CallExprAST(std::string callee, std::vector<std::unique_ptr<AST>> args);
+    CallExprAST(std::string callee, std::vector<std::unique_ptr<AST>> args)
+        : callee_(std::move(callee)), args_(std::move(args)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override;
+    std::string toString() override {  return "(" + callee_ +"()"; }
 };

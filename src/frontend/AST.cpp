@@ -1,28 +1,42 @@
 #include "AST.hpp"
 
+///Codegen for Containers (functions / codeblocs)
+llvm::Value* FunctionAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
+{
+    //TODO !!!!
+    return nullptr;
+}
 
-/// Constructors
-PrintStmtAST::PrintStmtAST(std::unique_ptr<AST> expression) 
-    : expression_(std::move(expression)) {}
+llvm::Value* BlockAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
+{
 
-VarDeclarationStmtAST::VarDeclarationStmtAST(TokenType vt, const std::string& ident, std::unique_ptr<AST> expr)
-    : varType_{vt}, identifier_{ident}, expression_{std::move(expr)} {}
+    return nullptr;
+}
 
-VariableExprAST::VariableExprAST(const std::string& name) : name_{name} {}
+///Codegen for Statments
 
-BinaryExprAST::BinaryExprAST(TokenType op, std::unique_ptr<AST> l, std::unique_ptr<AST> r)
-    : op_{op}, lhs_{std::move(l)}, rhs_{std::move(r)} {}
+llvm::Value* VarDeclarationStmtAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
+{
+    //Calculate expression (eg. 2+2*2)
+    llvm::Value* initVal = expression_->codegen(context, builder, module, symbolTable);
+    //alloca instruction - reserve 32bits on the stack for int
+    llvm::AllocaInst* alloca = builder.CreateAlloca(builder.getInt32Ty(), nullptr, identifier_);
+    // Store Initval into alloca(allocated stack memory)
+    builder.CreateStore(initVal, alloca);
+    //Save the memory addres of variable in symbol table
+    symbolTable[identifier_] = alloca;
 
-IntegerExprAST::IntegerExprAST(int val) : val_{val} {}
+    return alloca;
+}
+
+llvm::Value* AssignmentStmtAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
+{
+    //TODO !!!!
+    return nullptr;
+}
 
 
-
-///Codegen
-
-llvm::Value* PrintStmtAST::codegen(llvm::LLVMContext& context, 
-                            llvm::IRBuilder<>& builder, 
-                            llvm::Module& module,
-                            SymbolTable& symbolTable)
+llvm::Value* PrintStmtAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
 {
     //Generete value to be printed
     llvm::Value* val = expression_->codegen(context, builder, module, symbolTable);
@@ -42,41 +56,29 @@ llvm::Value* PrintStmtAST::codegen(llvm::LLVMContext& context,
     }
 
     return builder.CreateCall(printfFunc, { formatStr, val }, "printf_call");
-
 }
 
-llvm::Value* VarDeclarationStmtAST::codegen(llvm::LLVMContext& context, 
-                                            llvm::IRBuilder<>& builder, 
-                                            llvm::Module& module,
-                                            SymbolTable& symbolTable) 
+llvm::Value* IfStmtAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
 {
-    //Calculate expression (eg. 2+2*2)
-    llvm::Value* initVal = expression_->codegen(context, builder, module, symbolTable);
-    //alloca instruction - reserve 32bits on the stack for int
-    llvm::AllocaInst* alloca = builder.CreateAlloca(builder.getInt32Ty(), nullptr, identifier_);
-    // Store Initval into alloca(allocated stack memory)
-    builder.CreateStore(initVal, alloca);
-    //Save the memory addres of variable in symbol table
-    symbolTable[identifier_] = alloca;
-
-    return alloca;
+    //TODO !!!!
+    return nullptr;
 }
 
-llvm::Value* VariableExprAST::codegen(llvm::LLVMContext& context, 
-                                    llvm::IRBuilder<>& builder, 
-                                    llvm::Module& module,
-                                    SymbolTable& symbolTable) 
+llvm::Value* WhileStmtAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
 {
-    //find variables memory in the stack
-    llvm::AllocaInst* alloca = symbolTable[name_];
-    //load memory adress and extract number inside
-    return builder.CreateLoad(alloca->getAllocatedType(), alloca, name_.c_str());
+    //TODO !!!!
+    return nullptr;
 }
 
-llvm::Value* BinaryExprAST::codegen(llvm::LLVMContext& context, 
-                                    llvm::IRBuilder<>& builder, 
-                                    llvm::Module& module,
-                                    SymbolTable& symbolTable) 
+llvm::Value* ReturnStmtAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
+{
+    //TODO !!!!
+    return nullptr;
+}
+
+/// Codegen for expressions
+
+llvm::Value* BinaryExprAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
 {
     llvm::Value* L = lhs_->codegen(context, builder, module, symbolTable);
     llvm::Value* R = rhs_->codegen(context, builder, module, symbolTable);
@@ -97,38 +99,21 @@ llvm::Value* BinaryExprAST::codegen(llvm::LLVMContext& context,
     }
 }
 
-llvm::Value* IntegerExprAST::codegen(llvm::LLVMContext& context, 
-                                        llvm::IRBuilder<>& builder, 
-                                        llvm::Module& module,
-                                        SymbolTable& symbolTable) 
+llvm::Value* VariableExprAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
+{
+    //find variables memory in the stack
+    llvm::AllocaInst* alloca = symbolTable[name_];
+    //load memory adress and extract number inside
+    return builder.CreateLoad(alloca->getAllocatedType(), alloca, name_.c_str());
+}
+
+llvm::Value* IntegerExprAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
 {
     return llvm::ConstantInt::get(context, llvm::APInt(32, val_, true));
 }
 
-
-/// toString
-
-std::string PrintStmtAST::toString()
+llvm::Value* CallExprAST::codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable)
 {
-    return "(print " + expression_->toString() + ")";
-}
-
-std::string VarDeclarationStmtAST::toString()
-{
-    return "(decl " + identifier_ + " " + expression_->toString() + ")";
-}
-
-std::string VariableExprAST::toString()
-{
-    return name_;
-}
-
-std::string BinaryExprAST::toString()
-{
-    return "(" + Token::typeToString(op_) + " " + lhs_->toString() + " " + rhs_->toString() + ")";
-}
-
-std::string IntegerExprAST::toString()
-{
-    return std::to_string(val_);
+    //TODO !!!!
+    return nullptr;
 }
