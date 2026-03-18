@@ -2,9 +2,16 @@
 
 Lexer::Lexer(std::string source_code): input_{source_code}
 {
-    keywords_["print"] = TokenType::PRINT_KEYWORD;
-    keywords_["int"] = TokenType::INT_KEYWORD;
-
+    keywords_ = {
+        {"fn",     TokenType::FN_KEYWORD},
+        {"int",    TokenType::INT_KEYWORD},
+        {"void",   TokenType::VOID_KEYWORD},
+        {"print",  TokenType::PRINT_KEYWORD},
+        {"if",     TokenType::IF_KEYWORD},
+        {"else",   TokenType::ELSE_KEYWORD},
+        {"while",  TokenType::WHILE_KEYWORD},
+        {"return", TokenType::RETURN_KEYWORD}
+    };
 }
 
 std::vector<Token> Lexer::tokenize()
