@@ -15,6 +15,9 @@ private:
     /** @brief Checks if the current token matches the expected type. */
     bool match(TokenType type);
 
+    /** @brief Peeks at the next token. */
+    Token& peek();
+
     /** @brief Consumes the current token and moves to the next one. */
     Token& advance();
 

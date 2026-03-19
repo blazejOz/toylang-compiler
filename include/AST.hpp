@@ -30,6 +30,7 @@ public:
     /** @brief Returns a string representation of the node (Lisp-style) for debugging. */
     virtual std::string toString() = 0;
 };
+class BlockAST;
 
 //Container Nodes
 
@@ -45,7 +46,7 @@ public:
                 TokenType retType, std::unique_ptr<BlockAST> body)
         : name_(std::move(name)), args_(std::move(args)), returnType_(retType), body_(std::move(body)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
-    std::string toString() override { return "(function " + name_ + body_->toString() + ")";  }
+    std::string toString() override { return "(function " + name_  + ")";  }
 };
 
 
@@ -108,7 +109,8 @@ private:
     std::unique_ptr<BlockAST> thenBlock_;
     std::unique_ptr<BlockAST> elseBlock_; // Can be nullptr
 public:
-    IfStmtAST(std::unique_ptr<AST> cond, std::unique_ptr<BlockAST> thenB, std::unique_ptr<BlockAST> elseB);
+    IfStmtAST(std::unique_ptr<AST> cond, std::unique_ptr<BlockAST> thenB, std::unique_ptr<BlockAST> elseB)
+        : condition_(std::move(cond)), thenBlock_(std::move(thenB)), elseBlock_(std::move(elseB)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
     std::string toString() override { return "(if " + condition_->toString() + ")"; }
 };
@@ -177,7 +179,7 @@ private:
     std::vector<std::unique_ptr<AST>> args_;
 public:
     CallExprAST(std::string callee, std::vector<std::unique_ptr<AST>> args)
-        : callee_(std::move(callee)), args_(std::move(args)) {}
+        : callee_(callee), args_(std::move(args)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
     std::string toString() override {  return "(" + callee_ +"()"; }
 };
