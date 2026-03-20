@@ -7,6 +7,15 @@ int main() {
     // 1. Lexing
     Lexer lexer(R"(
 
+            fn printNum(int a): void
+            {
+                print(a);
+            }   
+            fn add(int a, int b): int
+            {
+                return a + b;
+            }   
+
             fn main(): int
             {
                 int x = 2 + 2 * 2;
@@ -26,10 +35,10 @@ int main() {
         std::cout << "Parsed Statement: " << ast->toString() << std::endl;
     }
 
-    // // 3. IR Generation
-    // IRGenerator codegen;
-    // codegen.generate(asts);
-    // codegen.print();
+    // 3. IR Generation
+    IRGenerator codegen;
+    codegen.generate(asts);
+    codegen.print();
 
     
 
