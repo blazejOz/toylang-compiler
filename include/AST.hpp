@@ -45,7 +45,7 @@ public:
     { 
         std::string s = "{ ";
         for (auto& stmt : statements_) {
-            if (stmt) s += stmt->toString() + "; ";
+            if (stmt) s += stmt->toString() + " ";
         }
         s += "}";
         return s;  
@@ -141,7 +141,7 @@ public:
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
     std::string toString() override 
     { 
-        std::string s = "(if " + condition_->toString() + thenBlock_->toString();
+        std::string s = "(if " + condition_->toString() + " " + thenBlock_->toString();
         if (elseBlock_) s += elseBlock_->toString(); 
         s += ")";
         return s; 
@@ -159,7 +159,7 @@ public:
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, SymbolTable& symbolTable) override;
     std::string toString() override 
     { 
-        std::string s = "(while " + condition_->toString() + body_->toString();
+        std::string s = "(while " + condition_->toString() + " " + body_->toString();
         s += ")";
         return s; 
     }

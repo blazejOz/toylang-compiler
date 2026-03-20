@@ -6,6 +6,8 @@
 #include "AST.hpp"
 
 class Parser {
+    friend class ParserTester;
+    
 private:
     std::vector<Token> tokens_;
     size_t pos_ = 0;
