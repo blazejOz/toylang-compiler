@@ -13,12 +13,13 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 llvm_map_components_to_libnames(llvm_libs 
-    core 
-    analysis 
-    executionengine 
-    orcjit 
+    core
+    orcjit
+    orcshared
     native
+    executionengine
     codegen
+    support
 )
 
 
@@ -31,8 +32,7 @@ add_library(compiler_lib
 )
 
 target_include_directories(compiler_lib PUBLIC include)
-target_link_libraries(compiler_lib PUBLIC ${llvm_libs})
-
+target_link_libraries(compiler_lib PUBLIC ${llvm_libs} LLVMOrcJIT LLVMExecutionEngine LLVMCore LLVMSupport)
 
 # MAIN EXEC
 add_executable(compiler src/main.cpp)

@@ -242,6 +242,7 @@ llvm::Value* BinaryExprAST::codegen(Context context, IRBuild builder, Mod module
             return builder.CreateICmpSLE(L, R, "letmp"); // SLE = Signed Less Equal
         default:
             LogErrorV("Unknown Binary Operation");
+            return nullptr;
     }
 }
 
