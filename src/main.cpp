@@ -8,10 +8,11 @@
 #include "Parser.hpp"
 #include "IR_Generator.hpp"
 #include "JITengine.hpp"
+#include "Backend.hpp"
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-            std::cerr << "Usage: " << argv[0] << " <input_file> [-S | -jit]" << std::endl;
+            std::cerr << "Usage: " << argv[0] << " <input_file> [-S | -o | -jit]" << std::endl;
             return 1;
         }
 
@@ -49,8 +50,17 @@ int main(int argc, char* argv[]) {
         std::string irCodes = codegen.getIRString();
         JITengine engine;
         engine.runFromIRString(irCodes);
-    } 
-    else {
+    }else if (mode == "-o"){
+        Backend backend;
+        std::string objFile = fileName + ".o";
+        backend.emitObjectFile(codegen.moveModule(), objFile);
+
+        // Call the system linker (cc) to turn the .o into an executable
+        std::string linkCmd = "cc " + objFile + " -o a.out";
+        system(linkCmd.c_str());
+        
+        std::cout << "Successfully compiled " << fileName << " to a.out" << std::endl;
+    }else {
         std::cerr << "Unknown flag: " << mode << std::endl;
         return 1;
     }

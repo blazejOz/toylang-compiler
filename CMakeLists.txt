@@ -29,6 +29,7 @@ add_library(compiler_lib
     src/frontend/Parser.cpp
     src/frontend/IR_Generator.cpp
     src/backend/JITengine.cpp
+    src/backend/Backend.cpp
 )
 
 target_include_directories(compiler_lib PUBLIC include)

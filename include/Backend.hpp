@@ -10,6 +10,6 @@ class Backend
 private:
 
 public:
-    void Backend::emitObjectFile(std::unique_ptr<llvm::Module> module, std::string filename);
+    void emitObjectFile(std::unique_ptr<llvm::Module> module, std::string filename);
 
 };

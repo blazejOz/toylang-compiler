@@ -17,12 +17,10 @@
 #include <iostream>
 
 void Backend::emitObjectFile(std::unique_ptr<llvm::Module> module, std::string filename) {
-    //initialize all targets
-    llvm::InitializeAllTargetInfos();
-    llvm::InitializeAllTargets();
-    llvm::InitializeAllTargetMCs();
-    llvm::InitializeAllAsmParsers();
-    llvm::InitializeAllAsmPrinters();
+    //initialize native targets
+    llvm::InitializeNativeTarget();
+    llvm::InitializeNativeTargetAsmPrinter();
+    llvm::InitializeNativeTargetAsmParser();
 
     // setup triple
     auto targetTriple = llvm::sys::getDefaultTargetTriple();
