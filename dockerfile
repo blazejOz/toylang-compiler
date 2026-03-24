@@ -5,7 +5,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     cmake \
     wget \
-    git \
     lsb-release \
     software-properties-common \
     gnupg \
@@ -23,7 +22,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN cmake -B build -DLLVM_DIR=/usr/lib/llvm-21/lib/cmake/llvm &&\
+RUN cmake -B build -DLLVM_DIR=/usr/lib/llvm-21/lib/cmake/llvm -DBUILD_TESTING=OFF &&\
     cmake --build build
 
 ENTRYPOINT ["./build/compiler"]

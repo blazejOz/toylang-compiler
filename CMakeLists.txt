@@ -40,20 +40,24 @@ add_executable(compiler src/main.cpp)
 target_link_libraries(compiler PRIVATE compiler_lib)
 
 # TESTS (Catch2)
-include(FetchContent)
+option(BUILD_TESTING "Build the testing suite" ON)
 
-FetchContent_Declare(
-  Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG        v3.8.1 
-)
-FetchContent_MakeAvailable(Catch2)
+if(BUILD_TESTING)
+    include(FetchContent)
 
-add_executable(unit_tests 
-  tests/test_lexer.cpp
-  tests/test_parser.cpp
-)
-target_link_libraries(unit_tests PRIVATE compiler_lib Catch2::Catch2WithMain)
+    FetchContent_Declare(
+      Catch2
+      GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+      GIT_TAG        v3.8.1 
+    )
+    FetchContent_MakeAvailable(Catch2)
 
-enable_testing()
-add_test(NAME LexerTests COMMAND unit_tests)
+    add_executable(unit_tests 
+      tests/test_lexer.cpp
+      tests/test_parser.cpp
+    )
+    target_link_libraries(unit_tests PRIVATE compiler_lib Catch2::Catch2WithMain)
+
+    enable_testing()
+    add_test(NAME LexerTests COMMAND unit_tests)
+endif()
