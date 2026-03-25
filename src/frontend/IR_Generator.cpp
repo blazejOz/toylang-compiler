@@ -261,7 +261,7 @@ llvm::Value* VariableExprAST::codegen(Context context, IRBuild builder, Mod modu
 
 llvm::Value* IntegerExprAST::codegen(Context context, IRBuild builder, Mod module, NamedVals namedValues)
 {
-    return llvm::ConstantInt::get(context, llvm::APInt(32, val_, true));
+    return llvm::ConstantInt::get(context, llvm::APInt(32, value_, true));
 }
 
 llvm::Value* CallExprAST::codegen(Context context, IRBuild builder, Mod module, NamedVals namedValues)
