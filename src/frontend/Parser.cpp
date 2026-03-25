@@ -99,7 +99,10 @@ std::unique_ptr<AST> Parser::parseStatement()
     if(match(TokenType::INT_KEYWORD)) return parseVarDeclarationStatement();
     if(match(TokenType::IDENTIFIER)) {
         if(peek().type == TokenType::ASSIGN) return parseAssignmentStatement();
-        if(peek().type == TokenType::L_PAREN) return parseFunctionCall();
+        //parse Functioncall (eg factorial(5); )
+        auto expr = parseExpression(); 
+        expect(TokenType::SEMICOLON);
+        return expr;
     }
     if(match(TokenType::PRINT_KEYWORD)) return parsePrintStatement();
     if(match(TokenType::IF_KEYWORD)) return parseIfStatement();
@@ -245,7 +248,6 @@ std::unique_ptr<AST> Parser::parseFunctionCall()
     expect(TokenType::L_PAREN);
     auto args = parseArgs();
     expect(TokenType::R_PAREN);
-    expect(TokenType::SEMICOLON);
     return std::make_unique<CallExprAST>(callee, std::move(args));
 }
 
