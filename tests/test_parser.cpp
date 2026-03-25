@@ -8,6 +8,7 @@ class ParserTester {
 public:
     static std::unique_ptr<AST> parseExpr(Parser& p) { return p.parseExpression(); }
     static std::unique_ptr<AST> parseStmt(Parser& p) { return p.parseStatement(); }
+    static std::unique_ptr<BlockAST> parseBlock(Parser& p) { return p.parseBlock(); }
 };
 
 /** @brief Structural Helper: Casts a node and fails the test if it's the wrong type */
@@ -146,7 +147,27 @@ TEST_CASE("Parser handles statemants" , "[parser]")
         
         auto* binExpr = require_node<BinaryExprAST>(returnNode->getExpression());
         CHECK(binExpr->getOp() == "*");
-    }   
+    }
+    
+    SECTION("Sequence of statements in a block") {
+        std::string input = "{ function(2); print(function(42)); return 0; }";
+        Parser p{Lexer{input}.tokenize()};
+        
+        auto block = ParserTester::parseBlock(p);
+        auto* blockNode = require_node<BlockAST>(block.get());
+        
+        auto& stmts = blockNode->getStatements();
+        REQUIRE(stmts.size() == 3); 
+        
+
+        auto* printNode = require_node<PrintStmtAST>(stmts[1].get());
+        
+        auto* call = require_node<CallExprAST>(printNode->getExpression());
+        CHECK(call->getCallee() == "function");
+        
+        auto* num = require_node<IntegerExprAST>(call->getArgs()[0].get());
+        CHECK(num->getValue() == 42);
+    }
 
 }
 
