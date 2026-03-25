@@ -9,6 +9,6 @@ fn factorial(int n): int {
 }
 
 fn main(): int {
-    print(factorial(5););
+    print(factorial(5));
     return 0;
 }

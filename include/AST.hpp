@@ -50,6 +50,7 @@ public:
         s += "}";
         return s;  
     }
+    const std::vector<std::unique_ptr<AST>>& getStatements() const { return statements_; }
 };
 
 
@@ -86,6 +87,11 @@ public:
 
         return s; 
     }
+
+    std::string getName() const { return name_; }
+    std::vector<std::pair<TokenType, std::string>> getArgs() const { return args_; }
+    std::string getReturnType() const { return Token::typeToString(returnType_); }
+    BlockAST* getBody() const { return body_.get(); }
 };
 
 
@@ -103,6 +109,9 @@ public:
         : varType_(vt), identifier_(std::move(id)), expression_(std::move(expr)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, NamedVals namedValues) override;
     std::string toString() override { return "(decl " + identifier_ + " " + expression_->toString() + ")"; }
+    AST* getExpression() const { return expression_.get(); }
+    std::string getIdentifier() const { return identifier_; }
+    std::string getVariableType() const { return Token::typeToString(varType_); }
 };
 
 /** @brief Represents an assignment to an existing variable (e.g., x = 10). */
@@ -116,6 +125,8 @@ public:
         
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, NamedVals namedValues) override;
     std::string toString() override { return "(assign " + identifier_ + " " + expression_->toString() + ")"; }
+    AST* getExpression() const { return expression_.get(); }
+    std::string getIdentifier() const { return identifier_; }
 };
 
 /** @brief Represents a statement that prints an expression. */
@@ -127,6 +138,7 @@ public:
         : expression_(std::move(expression)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, NamedVals namedValues) override;
     std::string toString() override {     return "(print " + expression_->toString() + ")";  }
+    AST* getExpression() const { return expression_.get(); }
 };
 
 /** @brief Represents an if-else conditional branch. */
@@ -146,6 +158,9 @@ public:
         s += ")";
         return s; 
     }
+    AST* getCondition() const { return condition_.get(); }
+    AST* getThenBlock() const { return thenBlock_.get(); }
+    AST* getElseBlock() const { return elseBlock_.get(); }
 };
 
 /** @brief Represents a while loop: while (condition) { body } */
@@ -163,6 +178,8 @@ public:
         s += ")";
         return s; 
     }
+    AST* getCondition() const { return condition_.get(); }
+    AST* getBody() const { return body_.get(); }
 };
 
 /** @brief Represents a return statement. */
@@ -174,6 +191,7 @@ public:
         : expression_(std::move(expression)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, NamedVals namedValues) override;
     std::string toString() override { return "(return " + expression_->toString() + ")";}
+    AST* getExpression() const { return expression_.get(); }
 };
 
 //Expression Nodes
@@ -188,6 +206,9 @@ public:
         : op_(op), lhs_(std::move(l)), rhs_(std::move(r)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, NamedVals namedValues) override;
     std::string toString() override { return "(" + Token::typeToString(op_) + " " + lhs_->toString() + " " + rhs_->toString() + ")"; }
+    std::string getOp() const { return Token::typeToString(op_); }
+    AST* getLHS() const { return lhs_.get(); }
+    AST* getRHS() const { return rhs_.get(); }
 };
 
 /** @brief Represents a variable usage as an expression. */
@@ -198,16 +219,18 @@ public:
     VariableExprAST(std::string name): name_(std::move(name)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, NamedVals namedValues) override;
     std::string toString() override { return name_; }
+    std::string getName() const { return name_; }
 };
 
 /** @brief Represents a literal integer like '42'. */
 class IntegerExprAST : public AST {
 private:
-    int val_;
+    int value_;
 public:
-    IntegerExprAST(int val): val_(val) {}
+    IntegerExprAST(int val): value_(val) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, NamedVals namedValues) override;
-    std::string toString() override { return std::to_string(val_); }
+    std::string toString() override { return std::to_string(value_); }
+    int getValue() const { return value_; }
 };
 
 /** @brief Represents a function call: identifier(args) */
@@ -219,5 +242,7 @@ public:
     CallExprAST(std::string callee, std::vector<std::unique_ptr<AST>> args)
         : callee_(callee), args_(std::move(args)) {}
     llvm::Value* codegen(Context context, IRBuild builder, Mod module, NamedVals namedValues) override;
-    std::string toString() override {  return "(" + callee_ +"()"; }
+    std::string toString() override {  return "(" + callee_ +"( args )"; }
+    std::string getCallee() const { return callee_; }
+    const std::vector<std::unique_ptr<AST>>& getArgs() const { return args_; }
 };
