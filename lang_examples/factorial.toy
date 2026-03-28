@@ -1,9 +1,8 @@
 fn factorial(int n): int {
     int res = 1;
-    int t = n;
-    while (t > 1) {
-        res = res * t;
-        t = t - 1;
+    while (n > 1) {
+        res = res * n;
+        n = n - 1;
     }
     return res;
 }

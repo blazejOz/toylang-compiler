@@ -29,19 +29,20 @@ llvm::Value* FunctionAST::codegen(Context context, IRBuild builder, Mod module, 
     
     // create function object
     llvm::Function* function = llvm::Function::Create(FuntionType, llvm::Function::ExternalLinkage, name_, &module);
-       
+      
+    // create entry block
+    llvm::BasicBlock* BasicBlock = llvm::BasicBlock::Create(context, "entry", function);
+    builder.SetInsertPoint(BasicBlock);
+
     // map arguments (clear the old, add new ones)
     namedValues.clear();
     unsigned idx = 0;
     for (auto& arg : function->args()) {
         std::string argName = args_[idx++].second; 
-        arg.setName(argName);
-        namedValues[argName] = &arg;
+        llvm::AllocaInst* Alloca = builder.CreateAlloca(builder.getInt32Ty(), nullptr, argName);
+        builder.CreateStore(&arg, Alloca);
+        namedValues[argName] = Alloca;   
     }
-
-    // create entry block
-    llvm::BasicBlock* BasicBlock = llvm::BasicBlock::Create(context, "entry", function);
-    builder.SetInsertPoint(BasicBlock);
 
     // generate body (BlockAST)
     if (body_) {
